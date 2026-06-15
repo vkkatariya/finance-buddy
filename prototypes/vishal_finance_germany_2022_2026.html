@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance Buddy &mdash; Vishal Katariya</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2a2a2e;border-radius:2px}
+:root{
+  --bg:#0D0D0F;--bg2:#111113;--surf:#1A1A1C;--surf2:#222224;--surf3:#2A2A2E;
+  --acc:#00D4AA;--acc-dim:rgba(0,212,170,.1);
+  --grn:#34C77B;--red:#F05C5C;--amb:#F5B55F;--pur:#A78BFA;--blue:#5B9CF6;
+  --tx:#EDEDF0;--tx60:rgba(237,237,240,.6);--tx30:rgba(237,237,240,.3);
+  --tx12:rgba(237,237,240,.12);--tx06:rgba(237,237,240,.06);
+  --sd:rgba(0,0,0,.85);--sl:rgba(255,255,255,.03);
+  --border:rgba(237,237,240,.07);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(237,237,240,.025) 1px,transparent 1px);background-size:24px 24px;pointer-events:none;z-index:0}
+
+/* ─── SITE HEADER ─── */
+.site-header{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;
+  height:62px;padding:0 24px;
+  background:#111114;
+  border-bottom:1px solid rgba(237,237,240,.06);
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset;
+}
+/* Logo */
+.logo-group{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;cursor:pointer}
+.logo-icon{width:36px;height:36px;flex-shrink:0}
+.logo-words{display:flex;flex-direction:column;gap:0;line-height:1}
+.logo-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--tx);letter-spacing:-.1px}
+.logo-name em{color:var(--acc);font-style:normal}
+.logo-tagline{font-size:8px;letter-spacing:1.8px;color:var(--tx30);text-transform:uppercase;margin-top:2px}
+/* Centered nav pill */
+.nav-center{position:absolute;left:50%;transform:translateX(-50%)}
+.main-nav{
+  display:flex;align-items:center;gap:2px;
+  background:#1A1A1D;border:1px solid rgba(237,237,240,.07);
+  border-radius:12px;padding:5px;
+}
+.nav-btn{
+  display:flex;align-items:center;padding:7px 15px;
+  border-radius:8px;
+  font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.8px;
+  color:rgba(237,237,240,.38);
+  background:none;border:none;cursor:pointer;
+  transition:color .13s,background .13s;
+  white-space:nowrap;
+}
+.nav-btn:hover{color:rgba(237,237,240,.7)}
+.nav-btn.act{background:#2A2A2F;color:var(--tx);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.nav-btn.new-t{color:rgba(245,181,95,.45)}
+.nav-btn.new-t:hover{color:rgba(245,181,95,.8)}
+.nav-btn.new-t.act{color:var(--tx);background:#2A2A2F}
+/* Right controls */
+.hdr-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.hdr-search{
+  display:flex;align-items:center;gap:7px;
+  background:#1A1A1D;border:1px solid rgba(237,237,240,.07);
+  border-radius:10px;padding:7px 12px;
+}
+.hdr-search svg{flex-shrink:0;opacity:.4}
+.hdr-search input{
+  background:none;border:none;outline:none;
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--tx);width:110px;
+}
+.hdr-search input::placeholder{color:rgba(237,237,240,.28)}
+.hdr-icon{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:#1A1A1D;border:1px solid rgba(237,237,240,.07);
+  cursor:pointer;transition:background .13s,border-color .13s;
+  color:rgba(237,237,240,.45);
+}
+.hdr-icon:hover{background:#222226;border-color:rgba(237,237,240,.14);color:var(--tx)}
+.hdr-avatar{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#00D4AA 0%,#34C77B 100%);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:800;
+  color:#0D0D0F;
+}
+
+/* ─── LAYOUT ─── */
+.content{position:relative;z-index:1;padding:24px;max-width:1180px;margin:0 auto}
+.panel{display:none}.panel.act{display:block;animation:pi .3s ease both}
+@keyframes pi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* ─── SECTION HEADER ─── */
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.sh-num{font-size:8px;letter-spacing:3px;color:var(--tx30);text-transform:uppercase}
+.sh-ttl{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.sh-line{flex:1;height:1px;background:linear-gradient(to right,var(--tx06),transparent)}
+.sh-sub{font-size:9px;color:var(--tx30);letter-spacing:1.2px;line-height:1.6;margin-bottom:16px}
+
+/* ─── CARD ─── */
+.w{border-radius:16px;padding:16px 18px;background:var(--surf);border:1px solid var(--tx06);box-shadow:4px 4px 14px var(--sd),-1px -1px 5px var(--sl),inset 0 1px 0 var(--sl);transition:transform .22s cubic-bezier(.34,1.46,.64,1)}
+.w:hover{transform:translateY(-2px) scale(1.006)}
+.w.accent{border-color:rgba(0,212,170,.2);background:rgba(0,212,170,.04)}
+.w.neg{border-color:rgba(240,92,92,.18);background:rgba(240,92,92,.04)}
+.w.amb{border-color:rgba(245,181,95,.18);background:rgba(245,181,95,.04)}
+.wlbl{font-size:8px;letter-spacing:3px;color:var(--tx30);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.wlbl::before{content:'';width:3px;height:3px;border-radius:50%;background:var(--acc);flex-shrink:0}
+
+/* ─── KPI GRID ─── */
+.kpi-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.kpi-v{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1;margin:4px 0}
+.kpi-v.neg{color:var(--red)}.kpi-v.grn{color:var(--grn)}.kpi-v.acc{color:var(--acc)}.kpi-v.amb{color:var(--amb)}
+.kpi-s{font-size:10px;color:var(--tx30);letter-spacing:1px}
+
+/* ─── CHARTS ─── */
+.ov-g{display:grid;grid-template-columns:1fr 248px;gap:16px;margin-bottom:20px;align-items:start}
+.chart-wrap{position:relative;width:100%}
+.dn-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid var(--tx06);font-size:10px}
+.dn-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sv-row{display:flex;gap:3px}
+.sv-bar{width:12px;height:28px;border-radius:2px;flex-shrink:0;cursor:default}
+.sv-bar:hover{opacity:.7}
+.hb-row{display:grid;grid-template-columns:130px 1fr 70px;gap:12px;align-items:center;margin-bottom:9px}
+.hb-cat{font-size:11px;color:var(--tx60);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hb-track{height:24px;border-radius:8px;background:var(--surf3);overflow:hidden;position:relative}
+.hb-fill{height:100%;border-radius:0;background:var(--acc);width:0;transition:width 1.4s cubic-bezier(.4,0,.2,1);position:relative}
+.hb-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.12))}
+.hb-amt{font-size:11px;font-weight:500;color:var(--tx)}.hb-mo{font-size:8px;color:var(--tx30);letter-spacing:.5px;display:block}
+.net-bs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 18px}
+.net-b{border-radius:20px;padding:4px 14px;font-size:11px;font-weight:500}
+.net-b.pos{background:rgba(52,199,123,.1);color:var(--grn)}.net-b.neg{background:rgba(240,92,92,.1);color:var(--red)}
+.st-leg{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.st-dot{width:8px;height:8px;border-radius:2px;display:inline-block;flex-shrink:0;vertical-align:middle;margin-right:4px}
+.mo-notes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+
+/* ─── WASTE AUDIT ─── */
+.waste-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.waste-tbl th{padding:8px 12px;font-size:8px;letter-spacing:2px;color:var(--tx30);text-transform:uppercase;border-bottom:1px solid var(--tx06);text-align:left}
+.waste-tbl td{padding:9px 12px;border-bottom:1px solid rgba(237,237,240,.035);vertical-align:middle;color:var(--tx60)}
+.waste-tbl tr:last-child td{border-bottom:none}
+.waste-tbl tr:hover td{background:rgba(237,237,240,.02)}
+.waste-tbl td.item{color:var(--tx);font-weight:500}
+.waste-tbl td.amt{color:var(--red);font-weight:500;white-space:nowrap}
+.w-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:8px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+.w-tag.lux{background:rgba(240,92,92,.12);color:var(--red)}
+.w-tag.red{background:rgba(245,181,95,.12);color:var(--amb)}
+.w-tag.pass{background:rgba(0,212,170,.1);color:var(--acc)}
+.w-tag.exc{background:rgba(167,139,250,.12);color:var(--pur)}
+.cat-bars-wrap{padding:4px 0}
+.cat-bar-row{display:grid;grid-template-columns:130px 1fr 70px;gap:12px;align-items:center;margin-bottom:10px}
+.cat-bar-lbl{font-size:11px;color:var(--tx60);text-align:right}
+.cat-bar-track{height:20px;border-radius:6px;background:var(--surf2);overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:6px;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.cat-bar-amt{font-size:11px;color:var(--tx60)}
+.guide-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.guide-card{border-radius:14px;padding:16px;background:var(--surf);border:1px solid var(--tx06)}
+.guide-card-icon{font-size:20px;margin-bottom:10px;display:block}
+.guide-card-cat{font-size:8px;letter-spacing:2px;color:var(--tx30);text-transform:uppercase;margin-bottom:4px}
+.guide-card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;margin-bottom:8px;color:var(--tx)}
+.guide-card-body{font-size:10px;color:var(--tx60);line-height:1.75}
+.guide-card-save{margin-top:10px;padding-top:10px;border-top:1px solid var(--tx06);font-size:10px;color:var(--grn)}
+
+/* ─── SAVINGS PLAN ─── */
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.sc-card{border-radius:16px;padding:18px;background:var(--surf);border:1px solid var(--tx06)}
+.sc-card.s1 .sc-amount{color:var(--tx30)}.sc-card.s2 .sc-amount{color:var(--amb)}.sc-card.s3 .sc-amount{color:var(--grn)}
+.sc-card.s1{border-color:var(--tx06)}.sc-card.s2{border-color:rgba(245,181,95,.2)}.sc-card.s3{border-color:rgba(52,199,123,.25);background:rgba(52,199,123,.03)}
+.sc-label{font-size:8px;letter-spacing:2px;color:var(--tx30);text-transform:uppercase;margin-bottom:6px}
+.sc-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;margin-bottom:2px;color:var(--tx)}
+.sc-amount{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;margin:4px 0}
+.sc-detail{font-size:10px;color:var(--tx30);letter-spacing:.5px;line-height:1.6}
+.sc-break{margin-top:8px;padding-top:8px;border-top:1px solid var(--tx06);font-size:10px;letter-spacing:.3px}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.action-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;background:var(--surf2)}
+.action-num{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:var(--acc-dim);color:var(--acc)}
+.action-text{font-size:10px;color:var(--tx60);line-height:1.65}
+.action-text strong{color:var(--tx);display:block;margin-bottom:1px;font-size:11px}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <!-- Logo -->
+  <a class="logo-group" href="#">
+    <svg class="logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs><clipPath id="lc"><rect width="36" height="36" rx="9"/></clipPath></defs>
+      <rect width="36" height="36" rx="9" fill="#1C4A43"/>
+      <g clip-path="url(#lc)">
+        <rect x="0" y="0" width="10" height="36" fill="#1E6358"/>
+        <rect x="5" y="3" width="9" height="30" rx="4.5" fill="#2EC9A0"/>
+        <circle cx="18" cy="18" r="7.5" fill="white"/>
+        <rect x="22" y="3" width="9" height="30" rx="4.5" fill="#E05C7A"/>
+        <rect x="26" y="0" width="10" height="36" fill="#B87CCB"/>
+      </g>
+    </svg>
+    <div class="logo-words">
+      <span class="logo-name">Finance <em>Buddy</em></span>
+      <span class="logo-tagline">Vishal Katariya &middot; 993 txn</span>
+    </div>
+  </a>
+  <!-- Centred nav pill -->
+  <div class="nav-center">
+    <nav class="main-nav">
+      <button class="nav-btn act" id="nb0" onclick="sw(0)">Overview</button>
+      <button class="nav-btn" id="nb1" onclick="sw(1)">Monthly</button>
+      <button class="nav-btn" id="nb2" onclick="sw(2)">Budget</button>
+      <button class="nav-btn" id="nb3" onclick="sw(3)">Yearly</button>
+      <button class="nav-btn new-t" id="nb4" onclick="sw(4)">Waste Audit</button>
+      <button class="nav-btn new-t" id="nb5" onclick="sw(5)">Savings</button>
+    </nav>
+  </div>
+  <!-- Right controls -->
+  <div class="hdr-right">
+    <div class="hdr-search">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 9 L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input placeholder="Search..." readonly/>
+    </div>
+    <button class="hdr-icon" title="Notifications">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.51 1.5 3.5 3.51 3.5 6v3.5l-1 1.5h11l-1-1.5V6C12.5 3.51 10.49 1.5 8 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M6.5 12.5a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.3"/></svg>
+    </button>
+    <button class="hdr-avatar">VK</button>
+  </div>
+</header>
+
+<div class="content">
+
+<!-- ━━━━━ PANEL 0: OVERVIEW ━━━━━ -->
+<div class="panel act" id="p0">
+  <div class="kpi-g">
+    <div class="w"><div class="wlbl">Total spent</div><div class="kpi-v">&euro;43,729</div><div class="kpi-s">Oct 2022 &ndash; May 2026</div></div>
+    <div class="w accent"><div class="wlbl">Avg / month</div><div class="kpi-v acc">&euro;994</div><div class="kpi-s">Over 44 months</div></div>
+    <div class="w"><div class="wlbl">Total income</div><div class="kpi-v grn">&euro;31,844</div><div class="kpi-s">Avg &euro;724 / month</div></div>
+    <div class="w neg"><div class="wlbl">Net balance</div><div class="kpi-v neg">&minus;&euro;11,884</div><div class="kpi-s">3.5-year total</div></div>
+  </div>
+  <div class="ov-g">
+    <div class="w">
+      <div class="wlbl">Monthly expenses &amp; income &mdash; 44 months</div>
+      <div style="display:flex;gap:14px;margin-bottom:10px;font-size:10px;color:var(--tx30)">
+        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(0,212,170,.45);margin-right:5px;vertical-align:middle"></span>Expenses</span>
+        <span><span style="display:inline-block;width:18px;height:2px;background:var(--grn);margin-right:5px;vertical-align:middle;border-radius:1px"></span>Income</span>
+      </div>
+      <div class="chart-wrap" style="height:200px"><canvas id="c-ov-mo" role="img" aria-label="Monthly expenses and income, Oct 2022 to May 2026">Monthly data.</canvas></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--tx06)">
+        <div style="font-size:9px;color:var(--tx30);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Savings rhythm &mdash; green surplus &middot; red deficit</div>
+        <div class="sv-row" id="sv"></div>
+        <div style="display:flex;justify-content:space-around;font-size:9px;color:var(--tx30);margin-top:4px;letter-spacing:.5px"><span>Oct '22</span><span>2023</span><span>2024</span><span>2025</span><span>May '26</span></div>
+      </div>
+    </div>
+    <div class="w" style="align-self:start">
+      <div class="wlbl">All-time breakdown</div>
+      <div class="chart-wrap" style="height:155px"><canvas id="c-ov-dn" role="img" aria-label="Category donut chart">Spending shares.</canvas></div>
+      <div id="dn-leg" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━ PANEL 1: MONTHLY ━━━━━ -->
+<div class="panel" id="p1">
+  <div class="sh"><span class="sh-num">01</span><span class="sh-ttl">Monthly Trend</span><span class="sh-line"></span></div>
+  <div class="w" style="margin-bottom:14px">
+    <div class="wlbl">44 months of expenses &amp; income</div>
+    <div style="display:flex;gap:16px;margin-bottom:10px;font-size:10px;color:var(--tx30)">
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(0,212,170,.45);margin-right:5px;vertical-align:middle"></span>Expenses</span>
+      <span><span style="display:inline-block;width:18px;height:2px;background:var(--grn);margin-right:5px;vertical-align:middle;border-radius:1px"></span>Income</span>
+      <span><span style="display:inline-block;width:18px;height:0;border-top:1px dashed rgba(237,237,240,.25);margin-right:5px;vertical-align:middle"></span>&euro;994 avg</span>
+    </div>
+    <div class="chart-wrap" style="height:270px"><canvas id="c-mo" role="img" aria-label="Full monthly chart with avg line">44-month data.</canvas></div>
+  </div>
+  <div class="mo-notes">
+    <div class="w accent"><div class="wlbl">Lowest month</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--acc)">&euro;493</div><div class="kpi-s">Sep 2023</div></div>
+    <div class="w neg"><div class="wlbl">Highest month</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--red)">&euro;4,267</div><div class="kpi-s">Mar 2023 &mdash; Studienkolleg</div></div>
+    <div class="w"><div class="wlbl">Best savings month</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--grn)">+&euro;1,163</div><div class="kpi-s">Sep 2023 &mdash; multiple income</div></div>
+  </div>
+</div>
+
+<!-- ━━━━━ PANEL 2: AVG BUDGET ━━━━━ -->
+<div class="panel" id="p2">
+  <div class="sh"><span class="sh-num">02</span><span class="sh-ttl">Average Monthly Budget</span><span class="sh-line"></span></div>
+  <p class="sh-sub">Total per category &divide; 44 months. Only categories active in 12+ months. Shopping is kept merged.</p>
+  <div class="w" style="padding:20px 22px">
+    <div id="hbars"></div>
+    <div style="border-top:1px solid var(--tx06);margin-top:14px;padding-top:14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:9px;letter-spacing:2px;color:var(--tx30);text-transform:uppercase">Tracked monthly budget total</span>
+      <span style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--acc)" id="avg-total"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━ PANEL 3: YEARLY ━━━━━ -->
+<div class="panel" id="p3">
+  <div class="sh"><span class="sh-num">03</span><span class="sh-ttl">Year by Year</span><span class="sh-line"></span></div>
+  <div class="w" style="margin-bottom:14px">
+    <div class="wlbl">Income vs expenses by year</div>
+    <div style="display:flex;gap:14px;margin-bottom:10px;font-size:10px;color:var(--tx30)">
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(52,199,123,.5);margin-right:5px;vertical-align:middle"></span>Income</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(0,212,170,.5);margin-right:5px;vertical-align:middle"></span>Expenses</span>
+    </div>
+    <div class="chart-wrap" style="height:200px"><canvas id="c-yr" role="img" aria-label="Yearly income vs expenses">Yearly data.</canvas></div>
+    <div class="net-bs" id="net-bs"></div>
+  </div>
+  <div class="w">
+    <div class="wlbl">Category composition by year</div>
+    <div class="st-leg" id="st-leg"></div>
+    <div class="chart-wrap" style="height:240px"><canvas id="c-st" role="img" aria-label="Stacked category bars by year">Category composition.</canvas></div>
+  </div>
+</div>
+
+<!-- ━━━━━ PANEL 4: WASTE AUDIT ━━━━━ -->
+<div class="panel" id="p4">
+  <div class="kpi-g">
+    <div class="w neg"><div class="wlbl">Avoidable spend</div><div class="kpi-v neg">&euro;3,656</div><div class="kpi-s">Identified across 44 months</div></div>
+    <div class="w"><div class="wlbl">% of total spend</div><div class="kpi-v amb">8.4%</div><div class="kpi-s">Of &euro;43,729 total</div></div>
+    <div class="w"><div class="wlbl">Avoidable / month</div><div class="kpi-v">&euro;83</div><div class="kpi-s">Monthly average</div></div>
+    <div class="w"><div class="wlbl">Would-be position</div><div class="kpi-v neg">&minus;&euro;8,228</div><div class="kpi-s">If cuts had been made</div></div>
+  </div>
+
+  <div class="sh"><span class="sh-num">01</span><span class="sh-ttl">Top avoidable purchases</span><span class="sh-line"></span></div>
+  <div class="w" style="margin-bottom:16px;padding:0">
+    <table class="waste-tbl">
+      <thead><tr><th>Date</th><th>Item</th><th>Category</th><th>Amount</th><th>Why avoidable</th><th>Tag</th></tr></thead>
+      <tbody>
+        <tr><td>May 2026</td><td class="item">Xiaomi E-Scooter</td><td>Electronics</td><td class="amt">&euro;399</td><td>Public transport was already &euro;7/mo. Luxury transport upgrade.</td><td><span class="w-tag lux">Luxury</span></td></tr>
+        <tr><td>Oct 2023</td><td class="item">iPhone 12 Pro</td><td>Electronics</td><td class="amt">&euro;357</td><td>Had iPhone XR in working condition. 10-month-old phone.</td><td><span class="w-tag red">Premature</span></td></tr>
+        <tr><td>Dec 2025</td><td class="item">Apple Watch Ultra</td><td>Electronics</td><td class="amt">&euro;350</td><td>Pure luxury. No functional need as student.</td><td><span class="w-tag lux">Luxury</span></td></tr>
+        <tr><td>Apr 2026</td><td class="item">MacBook M1 Max Upgrade</td><td>Electronics</td><td class="amt">&euro;100</td><td>Already owned working M1 Max. Upgrade fee for non-essential improvement.</td><td><span class="w-tag red">Redundant</span></td></tr>
+        <tr><td>Jun 2025</td><td class="item">iPad Pro + Apple Pencil</td><td>Electronics</td><td class="amt">&euro;225</td><td>Already had MacBook + phone. 3rd device, marginal student utility.</td><td><span class="w-tag red">Redundant</span></td></tr>
+        <tr><td>Jun 2023</td><td class="item">Xiaomi Tablet + case</td><td>Electronics</td><td class="amt">&euro;140</td><td>Fully redundant with phone. Sold eventually anyway.</td><td><span class="w-tag red">Redundant</span></td></tr>
+        <tr><td>May 2023</td><td class="item">Xiaomi Smart Pen</td><td>Electronics</td><td class="amt">&euro;80</td><td>Accessory for a tablet that was itself avoidable.</td><td><span class="w-tag red">Redundant</span></td></tr>
+        <tr><td>Aug 2023</td><td class="item">Soundcore Earbuds &times;2</td><td>Electronics</td><td class="amt">&euro;48</td><td>Second pair bought in 2024. First pair was still functional.</td><td><span class="w-tag red">Premature</span></td></tr>
+        <tr><td>Mar 2026</td><td class="item">Homelab: Radxa Rock 5T kit</td><td>Homelab</td><td class="amt">&euro;176</td><td>Passion project build during &euro;12k deficit. Defer until break-even.</td><td><span class="w-tag pass">Passion</span></td></tr>
+        <tr><td>Apr 2026</td><td class="item">Homelab: Dell + RAM + SSD</td><td>Homelab</td><td class="amt">&euro;185</td><td>Homelab expansion while still in financial deficit.</td><td><span class="w-tag pass">Passion</span></td></tr>
+        <tr><td>2023</td><td class="item">Clothing hauls (Zara, H&amp;M, Cropps)</td><td>Clothing</td><td class="amt">&euro;300+</td><td>7+ clothing transactions in May 2023 alone. Capsule wardrobe approach missing.</td><td><span class="w-tag exc">Excess</span></td></tr>
+        <tr><td>Ongoing</td><td class="item">Food out habit (&gt;&euro;35/mo)</td><td>Food out</td><td class="amt">&euro;748</td><td>269 entries. Budget target &euro;15/mo. Weekly Dosa.com (&euro;20-27) is the main culprit.</td><td><span class="w-tag exc">Habit</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sh"><span class="sh-num">02</span><span class="sh-ttl">Avoidable by category</span><span class="sh-line"></span></div>
+  <div class="w" style="margin-bottom:16px">
+    <div class="cat-bars-wrap" id="cat-bars"></div>
+  </div>
+
+  <div class="sh"><span class="sh-num">03</span><span class="sh-ttl">Corner-cutting guide</span><span class="sh-line"></span></div>
+  <div class="guide-grid">
+    <div class="guide-card">
+      <span class="guide-card-icon">&#128241;</span>
+      <div class="guide-card-cat">Electronics</div>
+      <div class="guide-card-title">The 3-year rule</div>
+      <div class="guide-card-body">Never upgrade a device that still works. iPhone XR &rarr; 12 Pro after 10 months, Apple Watch Ultra on a deficit, Xiaomi Tablet + Smart Pen as a 3rd device. One laptop, one phone, one pair of earbuds at any given time.</div>
+      <div class="guide-card-save">&#10003; Saves ~&euro;1,474 &mdash; biggest single lever</div>
+    </div>
+    <div class="guide-card">
+      <span class="guide-card-icon">&#127829;</span>
+      <div class="guide-card-cat">Food &amp; Coffee</div>
+      <div class="guide-card-title">Cook 5 days, eat out 2</div>
+      <div class="guide-card-body">269 food-out entries averaging &euro;5.67 each. Weekly Dosa.com visits (&euro;20&ndash;27), frequent pizza (&euro;11&ndash;12), daily coffee habit. Set a hard &euro;15/mo cap &mdash; that's one proper meal out per week.</div>
+      <div class="guide-card-save">&#10003; Saves ~&euro;748 over active months</div>
+    </div>
+    <div class="guide-card">
+      <span class="guide-card-icon">&#128087;</span>
+      <div class="guide-card-cat">Clothing</div>
+      <div class="guide-card-title">One seasonal buy, one store</div>
+      <div class="guide-card-body">8 clothing transactions in May 2023 alone. Zara dependency ran hot through 2022&ndash;2023. Plan one buy per season (&euro;80 max), stick to one store per season, use AliExpress for basics only.</div>
+      <div class="guide-card-save">&#10003; Saves ~&euro;534 over the period</div>
+    </div>
+    <div class="guide-card">
+      <span class="guide-card-icon">&#128187;</span>
+      <div class="guide-card-cat">Homelab</div>
+      <div class="guide-card-title">Defer passion projects</div>
+      <div class="guide-card-body">&euro;491 on Radxa, Dell Optiplex, SSD, networking &mdash; all bought while &euro;12k in deficit. These are exciting projects. Build them after hitting &euro;0 net worth. Set a homelab budget in your savings plan.</div>
+      <div class="guide-card-save">&#10003; Saves ~&euro;491 &mdash; free up deficit recovery</div>
+    </div>
+    <div class="guide-card">
+      <span class="guide-card-icon">&#127909;</span>
+      <div class="guide-card-cat">Entertainment</div>
+      <div class="guide-card-title">Set a &euro;20/month envelope</div>
+      <div class="guide-card-body">&ldquo;FUN&rdquo; entries ranging &euro;30&ndash;60 each are the culprit (&euro;389 total). Cinema is fine (&euro;59 over 3.5 years = &euro;1.4/mo). Cash-only entertainment budget: take &euro;20 out, when it&rsquo;s gone it&rsquo;s gone.</div>
+      <div class="guide-card-save">&#10003; Saves ~&euro;295 over the period</div>
+    </div>
+    <div class="guide-card">
+      <span class="guide-card-icon">&#128722;</span>
+      <div class="guide-card-cat">Daily habits</div>
+      <div class="guide-card-title">Audit your micro-spend</div>
+      <div class="guide-card-body">DM runs, Temu, AliExpress, Rossmann stops &mdash; each under &euro;5 but dozens per year. Your grocery trips double as impulse buy opportunities. Use a shopping list, never browse.</div>
+      <div class="guide-card-save">&#10003; Saves &euro;100&ndash;200/yr with zero sacrifice</div>
+    </div>
+  </div>
+</div>
+
+<!-- ━━━━━ PANEL 5: SAVINGS PLAN ━━━━━ -->
+<div class="panel" id="p5">
+  <div class="kpi-g">
+    <div class="w neg"><div class="wlbl">Current position</div><div class="kpi-v neg">&minus;&euro;11,884</div><div class="kpi-s">As of May 2026</div></div>
+    <div class="w"><div class="wlbl">Current monthly net</div><div class="kpi-v acc">+&euro;47</div><div class="kpi-s">2026 avg income &minus; spend</div></div>
+    <div class="w neg"><div class="wlbl">At current pace</div><div class="kpi-v neg">2047</div><div class="kpi-s">Breakeven year &mdash; 253 months</div></div>
+    <div class="w accent"><div class="wlbl">Post-grad target</div><div class="kpi-v acc">2028</div><div class="kpi-s">Breakeven with hustle mode</div></div>
+  </div>
+
+  <div class="sh"><span class="sh-num">01</span><span class="sh-ttl">Savings scenarios</span><span class="sh-line"></span></div>
+  <div class="scenario-grid">
+    <div class="sc-card s1">
+      <div class="sc-label">Scenario A</div>
+      <div class="sc-name">Status quo</div>
+      <div class="sc-amount">&euro;47/mo</div>
+      <div class="sc-detail">Current rate. No changes to spending.<br>Breakeven: month 253 &mdash; Sep 2047</div>
+      <div class="sc-break" style="color:var(--red)">&#9888; Unacceptable trajectory</div>
+    </div>
+    <div class="sc-card s2">
+      <div class="sc-label">Scenario B</div>
+      <div class="sc-name">Budget mode</div>
+      <div class="sc-amount">&euro;200/mo</div>
+      <div class="sc-detail">Cut food out, clothing, micro-spend.<br>Breakeven: month 60 &mdash; Jun 2031</div>
+      <div class="sc-break" style="color:var(--amb)">&#9654; Achievable with discipline</div>
+    </div>
+    <div class="sc-card s3">
+      <div class="sc-label">Scenario C</div>
+      <div class="sc-name">Post-grad hustle</div>
+      <div class="sc-amount">&euro;1,000/mo</div>
+      <div class="sc-detail">&euro;150/mo now &rarr; &euro;1,000/mo post-graduation.<br>Breakeven: month 22 &mdash; Apr 2028</div>
+      <div class="sc-break" style="color:var(--grn)">&#10003; Target this trajectory</div>
+    </div>
+  </div>
+
+  <div class="sh"><span class="sh-num">02</span><span class="sh-ttl">Recovery trajectory</span><span class="sh-line"></span></div>
+  <div class="w" style="margin-bottom:16px">
+    <div class="wlbl">Net position over time from Jun 2026 (7-year view)</div>
+    <div style="display:flex;gap:14px;margin-bottom:10px;font-size:10px;color:var(--tx30)">
+      <span><span style="display:inline-block;width:18px;height:2px;background:rgba(237,237,240,.3);margin-right:5px;vertical-align:middle;border-radius:1px"></span>Status quo</span>
+      <span><span style="display:inline-block;width:18px;height:2px;background:var(--amb);margin-right:5px;vertical-align:middle;border-radius:1px"></span>Budget mode</span>
+      <span><span style="display:inline-block;width:18px;height:2px;background:var(--grn);margin-right:5px;vertical-align:middle;border-radius:1px"></span>Post-grad hustle</span>
+    </div>
+    <div class="chart-wrap" style="height:260px"><canvas id="c-sv" role="img" aria-label="Savings trajectory chart showing 3 scenarios over 84 months">Savings scenarios.</canvas></div>
+  </div>
+
+  <div class="sh"><span class="sh-num">03</span><span class="sh-ttl">Action plan to hit Scenario B+C</span><span class="sh-line"></span></div>
+  <div class="w">
+    <div class="action-grid" id="action-grid">
+      <div class="action-row"><div class="action-num">1</div><div class="action-text"><strong>Cap food out at &euro;15/mo</strong>Reduces the single biggest habit overspend. Cook Sunday batch meals. Dosa.com is a &euro;80/mo habit &mdash; make it monthly, not weekly.</div></div>
+      <div class="action-row"><div class="action-num">2</div><div class="action-text"><strong>No tech purchases until &euro;0 net worth</strong>You have MacBook M1 Max, iPhone, AirPods. Nothing breaks that budget-blocking rule. Saves &euro;100&ndash;400/mo on impulse buys.</div></div>
+      <div class="action-row"><div class="action-num">3</div><div class="action-text"><strong>Pause homelab spending</strong>Radxa + Dell + networking = &euro;491 bought while &euro;12k down. Freeze until breakeven, then set a &euro;50/mo homelab budget.</div></div>
+      <div class="action-row"><div class="action-num">4</div><div class="action-text"><strong>Clothing budget: &euro;80/season max</strong>One planned trip per season, one store. 2023 style &mdash; 8 purchases in a single month &mdash; must not repeat.</div></div>
+      <div class="action-row"><div class="action-num">5</div><div class="action-text"><strong>Graduate &rarr; target &euro;2,000+/mo income</strong>At &euro;2,000 income and &euro;1,000 expenses: &euro;1,000/mo savings. Break-even in 12 months from grad day. This is the biggest lever.</div></div>
+      <div class="action-row"><div class="action-num">6</div><div class="action-text"><strong>Convert SBI account to NRO</strong>Keeps Indian financial compliance clean. Enables structured remittances without legal risk as an NRI under FEMA.</div></div>
+      <div class="action-row"><div class="action-num">7</div><div class="action-text"><strong>Track monthly in this dashboard</strong>You have the data. Export from Buddy every month and update. What gets measured gets managed.</div></div>
+      <div class="action-row"><div class="action-num">8</div><div class="action-text"><strong>Entertainment: cash envelope &euro;20/mo</strong>Withdraw &euro;20 cash. When it's gone, it's gone. Removes friction from digital small-spend impulses.</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const D={"monthly":[{"m":"2022-10","e":661.73,"i":0,"s":-661.73},{"m":"2022-11","e":746.23,"i":0,"s":-746.23},{"m":"2022-12","e":1091.79,"i":0,"s":-1091.79},{"m":"2023-01","e":647.41,"i":861,"s":213.59},{"m":"2023-02","e":786.4,"i":861,"s":74.6},{"m":"2023-03","e":4267.03,"i":2311,"s":-1956.03},{"m":"2023-04","e":743.78,"i":986.6,"s":242.82},{"m":"2023-05","e":992.77,"i":1393,"s":400.23},{"m":"2023-06","e":1130.39,"i":979.8,"s":-150.59},{"m":"2023-07","e":807.86,"i":861,"s":53.14},{"m":"2023-08","e":1039.21,"i":1153,"s":113.79},{"m":"2023-09","e":493.3,"i":1656.56,"s":1163.26},{"m":"2023-10","e":1087.17,"i":1746.6,"s":659.43},{"m":"2023-11","e":1112.42,"i":1510.5,"s":398.08},{"m":"2023-12","e":1109.82,"i":961,"s":-148.82},{"m":"2024-01","e":768.52,"i":0,"s":-768.52},{"m":"2024-02","e":686.08,"i":130.4,"s":-555.68},{"m":"2024-03","e":512.33,"i":0,"s":-512.33},{"m":"2024-04","e":1329.64,"i":0,"s":-1329.64},{"m":"2024-05","e":496.7,"i":0,"s":-496.7},{"m":"2024-06","e":823.56,"i":438.24,"s":-385.32},{"m":"2024-07","e":548.7,"i":926.5,"s":377.8},{"m":"2024-08","e":575.67,"i":864.29,"s":288.62},{"m":"2024-09","e":842.6,"i":1034,"s":191.4},{"m":"2024-10","e":1618.94,"i":1110.8,"s":-508.14},{"m":"2024-11","e":1687.93,"i":305.68,"s":-1382.25},{"m":"2024-12","e":735.21,"i":0,"s":-735.21},{"m":"2025-01","e":740.01,"i":50,"s":-690.01},{"m":"2025-02","e":1074.13,"i":0,"s":-1074.13},{"m":"2025-03","e":726.49,"i":0,"s":-726.49},{"m":"2025-04","e":778.3,"i":0,"s":-778.3},{"m":"2025-05","e":871.28,"i":0,"s":-871.28},{"m":"2025-06","e":1013.67,"i":1478,"s":464.33},{"m":"2025-07","e":735.36,"i":1420,"s":684.64},{"m":"2025-08","e":1138.5,"i":672,"s":-466.5},{"m":"2025-09","e":809.88,"i":931,"s":121.12},{"m":"2025-10","e":880.19,"i":717.75,"s":-162.44},{"m":"2025-11","e":826.98,"i":1189.12,"s":362.14},{"m":"2025-12","e":1192.88,"i":657.31,"s":-535.57},{"m":"2026-01","e":944.16,"i":1043.87,"s":99.71},{"m":"2026-02","e":1215.29,"i":1073.62,"s":-141.67},{"m":"2026-03","e":1093.57,"i":1133.82,"s":40.25},{"m":"2026-04","e":1196.24,"i":1387,"s":190.76},{"m":"2026-05","e":1148.41,"i":0,"s":-1148.41}],"donut":[{"n":"Rent","t":15215.86},{"n":"Education","t":8610.41},{"n":"Shopping","t":4758.08},{"n":"Groceries","t":4017.51},{"n":"Insurance","t":4008.15},{"n":"Food","t":1526.05},{"n":"Gym","t":1052.89},{"n":"Public transport","t":951.84},{"n":"Internet","t":704.84},{"n":"Service","t":525.44},{"n":"Lifestyle","t":491.63},{"n":"Entertainment","t":395.5},{"n":"Other","t":485.82}],"avg":[{"n":"Rent","a":345.81,"mo":43},{"n":"Education","a":195.69,"mo":24},{"n":"Shopping","a":108.14,"mo":30},{"n":"Groceries","a":91.31,"mo":43},{"n":"Insurance","a":91.09,"mo":43},{"n":"Food","a":34.68,"mo":38},{"n":"Gym","a":23.93,"mo":30},{"n":"Public transport","a":21.63,"mo":26},{"n":"Internet","a":16.02,"mo":30},{"n":"Service","a":11.94,"mo":19},{"n":"Lifestyle","a":11.17,"mo":26},{"n":"Subscription","a":3.91,"mo":27},{"n":"Laundry","a":2.97,"mo":17}],"yearly":[{"y":2022,"e":2499.75,"i":0,"n":-2499.75},{"y":2023,"e":14217.56,"i":15281.06,"n":1063.5},{"y":2024,"e":10625.88,"i":4809.91,"n":-5815.97},{"y":2025,"e":10787.67,"i":7115.18,"n":-3672.49},{"y":2026,"e":5597.67,"i":4638.31,"n":-959.36}],"stacked":[{"y":2022,"Rent":756.49,"Education":945.7,"Shopping":182,"Groceries":235.02,"Insurance":123,"Food":15.93,"Gym":0,"Public transport":8.5,"Internet":30,"Service":7.33},{"y":2023,"Rent":3405.91,"Education":4837.4,"Shopping":1179.95,"Groceries":1124.16,"Insurance":856.5,"Food":506.07,"Gym":206.77,"Public transport":704.73,"Internet":169.07,"Service":140.45},{"y":2024,"Rent":4091.24,"Education":1691.77,"Shopping":1411.82,"Groceries":1046.82,"Insurance":737.5,"Food":241.97,"Gym":349.49,"Public transport":219.48,"Internet":304.35,"Service":65.9},{"y":2025,"Rent":4918.86,"Education":747.94,"Shopping":931.58,"Groceries":1150.12,"Insurance":1688.29,"Food":499.15,"Gym":256.63,"Public transport":12,"Internet":106.09,"Service":159.36},{"y":2026,"Rent":2043.36,"Education":387.6,"Shopping":1052.73,"Groceries":461.39,"Insurance":602.86,"Food":262.93,"Gym":240,"Public transport":7.13,"Internet":95.33,"Service":152.4}],"topCats":["Rent","Education","Shopping","Groceries","Insurance","Food","Gym","Public transport","Internet","Service"]};
+
+const CC={Rent:"#F05C5C",Education:"#A78BFA",Shopping:"#00D4AA",Groceries:"#34C77B",Insurance:"#F5B55F",Food:"#97C459",Gym:"#D85A30","Public transport":"#888780",Internet:"#5B9CF6",Service:"#5DCAA5",Lifestyle:"#BA7517",Entertainment:"#F0997B",Other:"#606060"};
+const gc="rgba(237,237,240,0.05)";
+const tc="rgba(237,237,240,0.35)";
+const ci={};
+const done={};
+
+const tabs=document.querySelectorAll(".nav-btn");
+const panels=document.querySelectorAll(".panel");
+
+function sw(i){
+  tabs.forEach(function(t,j){t.classList.toggle("act",j===i);});
+  panels.forEach(function(p,j){p.classList.toggle("act",j===i);});
+  if(!done[i]){done[i]=1;bld(i);}
+  else{
+    var km={0:["ov-mo","ov-dn"],1:["mo"],2:[],3:["yr","st"],4:[],5:["sv"]};
+    (km[i]||[]).forEach(function(k){if(ci[k])ci[k].resize();});
+  }
+}
+
+function fk(v){return"\u20ac"+(v>=1000?(v/1000).toFixed(0)+"k":Math.round(Math.abs(v)));}
+function fkSigned(v){return(v>=0?"+\u20ac":"-\u20ac")+Math.abs(Math.round(v)).toLocaleString();}
+
+function mkCallbacks(monthly){
+  return {
+    title:function(ctx){return D.monthly[ctx[0].dataIndex].m;},
+    label:function(ctx){return(ctx.datasetIndex===0?"Expenses":"Income")+": \u20ac"+ctx.raw.toFixed(0);},
+    afterBody:function(ctx){var d=D.monthly[ctx[0].dataIndex];var s=d.i-d.e;return"Net: "+(s>=0?"+":"")+"\u20ac"+Math.round(s);}
+  };
+}
+
+function bld(id){
+  if(id===0){
+    ci["ov-mo"]=new Chart(document.getElementById("c-ov-mo"),{
+      type:"bar",
+      data:{
+        labels:D.monthly.map(function(d){return d.m;}),
+        datasets:[
+          {data:D.monthly.map(function(d){return d.e;}),backgroundColor:"rgba(0,212,170,0.42)",order:2,borderRadius:1},
+          {type:"line",data:D.monthly.map(function(d){return d.i;}),borderColor:"#34C77B",backgroundColor:"transparent",order:1,tension:0.35,pointRadius:0,pointHoverRadius:4,borderWidth:1.8}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false,callbacks:mkCallbacks(D.monthly)}},
+        scales:{
+          x:{ticks:{callback:function(v,i){var m=D.monthly[i]?D.monthly[i].m:"";return m.slice(5)==="01"?m.slice(0,4):"";},autoSkip:false,maxRotation:0,font:{size:10,family:"DM Mono"},color:tc},grid:{display:false}},
+          y:{ticks:{callback:fk,font:{size:10,family:"DM Mono"},color:tc},grid:{color:gc}}
+        }
+      }
+    });
+
+    var top7=D.donut.slice(0,7);
+    var rest=D.donut.slice(7).reduce(function(s,c){return s+c.t;},0);
+    var dl=top7.map(function(c){return c.n;}).concat(["Other"]);
+    var dd=top7.map(function(c){return c.t;}).concat([rest]);
+    var dclr=top7.map(function(c){return CC[c.n]||"#555";}).concat(["#505050"]);
+    var tot=dd.reduce(function(s,v){return s+v;},0);
+    ci["ov-dn"]=new Chart(document.getElementById("c-ov-dn"),{
+      type:"doughnut",
+      data:{labels:dl,datasets:[{data:dd,backgroundColor:dclr,borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.label+": \u20ac"+ctx.raw.toFixed(0)+" ("+((ctx.raw/tot)*100).toFixed(1)+"%)";}}}}
+      }
+    });
+    document.getElementById("dn-leg").innerHTML=dl.map(function(l,i){
+      return "<div class=\"dn-row\"><span style=\"display:flex;align-items:center;gap:5px;color:var(--tx60)\"><span class=\"dn-dot\" style=\"background:"+dclr[i]+"\"></span>"+l+"</span><span style=\"color:var(--tx);font-weight:500\">"+((dd[i]/tot)*100).toFixed(1)+"%</span></div>";
+    }).join("");
+
+    var mn=Math.min.apply(null,D.monthly.map(function(d){return d.s;}));
+    var mx=Math.max.apply(null,D.monthly.map(function(d){return d.s;}));
+    document.getElementById("sv").innerHTML=D.monthly.map(function(d){
+      var s=d.s,bg;
+      if(s>=0){var p=Math.min(s/mx,1);bg="rgba(52,199,123,"+(0.15+p*0.85).toFixed(2)+")";}
+      else{var p2=Math.min(-s/-mn,1);bg="rgba(240,92,92,"+(0.15+p2*0.85).toFixed(2)+")";}
+      return "<div class=\"sv-bar\" title=\""+d.m+": "+(s>=0?"+":"")+"\u20ac"+Math.round(s)+"\" style=\"background:"+bg+"\"></div>";
+    }).join("");
+  }
+
+  if(id===1){
+    var avgArr=D.monthly.map(function(){return 993.83;});
+    ci["mo"]=new Chart(document.getElementById("c-mo"),{
+      type:"bar",
+      data:{
+        labels:D.monthly.map(function(d){return d.m;}),
+        datasets:[
+          {data:D.monthly.map(function(d){return d.e;}),backgroundColor:"rgba(0,212,170,0.38)",order:2,borderRadius:2},
+          {type:"line",data:D.monthly.map(function(d){return d.i;}),borderColor:"#34C77B",backgroundColor:"transparent",order:1,tension:0.35,pointRadius:0,pointHoverRadius:4,borderWidth:2},
+          {type:"line",data:avgArr,borderColor:"rgba(237,237,240,0.2)",backgroundColor:"transparent",order:3,borderWidth:1,borderDash:[5,5],pointRadius:0}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false,callbacks:{
+          title:function(ctx){return D.monthly[ctx[0].dataIndex].m;},
+          label:function(ctx){if(ctx.datasetIndex===2)return"Avg: \u20ac994";return(ctx.datasetIndex===0?"Expenses":"Income")+": \u20ac"+ctx.raw.toFixed(0);},
+          afterBody:function(ctx){var d=D.monthly[ctx[0].dataIndex];var s=d.i-d.e;return"Net: "+(s>=0?"+":"")+"\u20ac"+Math.round(s);}
+        }}},
+        scales:{
+          x:{ticks:{callback:function(v,i){var m=D.monthly[i]?D.monthly[i].m:"";return m.slice(5)==="01"?m.slice(0,4):"";},autoSkip:false,maxRotation:0,font:{size:10,family:"DM Mono"},color:tc},grid:{display:false}},
+          y:{ticks:{callback:fk,font:{size:10,family:"DM Mono"},color:tc},grid:{color:gc}}
+        }
+      }
+    });
+  }
+
+  if(id===2){
+    var maxA=D.avg[0].a;
+    var totalA=D.avg.reduce(function(s,d){return s+d.a;},0);
+    document.getElementById("avg-total").textContent="\u20ac"+totalA.toFixed(2)+"/mo";
+    var bc={Rent:"#F05C5C",Education:"#A78BFA",Shopping:"#00D4AA",Groceries:"#34C77B",Insurance:"#F5B55F",Food:"#97C459",Gym:"#D85A30","Public transport":"#888780",Internet:"#5B9CF6",Service:"#5DCAA5",Lifestyle:"#BA7517",Subscription:"#9FE1CB",Laundry:"#B5D4F4"};
+    document.getElementById("hbars").innerHTML=D.avg.map(function(d){
+      var pct=(d.a/maxA*100).toFixed(1);
+      var col=bc[d.n]||"#00D4AA";
+      return "<div class=\"hb-row\"><span class=\"hb-cat\">"+d.n+"</span><div class=\"hb-track\"><div class=\"hb-fill\" style=\"background:"+col+"\" data-w=\""+pct+"\"></div></div><div><span class=\"hb-amt\">\u20ac"+d.a.toFixed(2)+"</span><span class=\"hb-mo\">"+d.mo+"/44 mo</span></div></div>";
+    }).join("");
+    requestAnimationFrame(function(){requestAnimationFrame(function(){document.querySelectorAll(".hb-fill").forEach(function(el){el.style.width=el.dataset.w+"%";});});});
+  }
+
+  if(id===3){
+    ci["yr"]=new Chart(document.getElementById("c-yr"),{
+      type:"bar",
+      data:{
+        labels:D.yearly.map(function(d){return String(d.y);}),
+        datasets:[
+          {label:"Income",data:D.yearly.map(function(d){return d.i;}),backgroundColor:"rgba(52,199,123,0.48)",borderRadius:5},
+          {label:"Expenses",data:D.yearly.map(function(d){return d.e;}),backgroundColor:"rgba(0,212,170,0.48)",borderRadius:5}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+": \u20ac"+ctx.raw.toFixed(0);},afterBody:function(ctx){var d=D.yearly[ctx[0].dataIndex];return"Net: "+(d.n>=0?"+":"")+"\u20ac"+Math.round(d.n);}}}},
+        scales:{x:{ticks:{font:{size:11,family:"DM Mono"},color:tc},grid:{display:false}},y:{ticks:{callback:fk,font:{size:10,family:"DM Mono"},color:tc},grid:{color:gc}}}
+      }
+    });
+    document.getElementById("net-bs").innerHTML=D.yearly.map(function(d){
+      var pos=d.n>=0;
+      return "<span class=\"net-b "+(pos?"pos":"neg")+"\">"+d.y+": "+(pos?"+":"")+"\u20ac"+Math.round(d.n).toLocaleString()+"</span>";
+    }).join("");
+    document.getElementById("st-leg").innerHTML=D.topCats.map(function(c){
+      return "<span style=\"font-size:10px;color:var(--tx30);display:flex;align-items:center;gap:4px\"><span class=\"st-dot\" style=\"background:"+(CC[c]||"#555")+"\"></span>"+c+"</span>";
+    }).join("");
+    ci["st"]=new Chart(document.getElementById("c-st"),{
+      type:"bar",
+      data:{labels:D.stacked.map(function(d){return String(d.y);}),datasets:D.topCats.map(function(cat){return{label:cat,data:D.stacked.map(function(d){return d[cat]||0;}),backgroundColor:CC[cat]||"#555",borderWidth:0};})},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+": \u20ac"+ctx.raw.toFixed(0);}}}},scales:{x:{stacked:true,ticks:{font:{size:11,family:"DM Mono"},color:tc},grid:{display:false}},y:{stacked:true,ticks:{callback:fk,font:{size:10,family:"DM Mono"},color:tc},grid:{color:gc}}}}
+    });
+  }
+
+  if(id===4){
+    var WASTE=[
+      {cat:"Electronics",total:1474,col:"#F05C5C"},
+      {cat:"Food out excess",total:748,col:"#F5B55F"},
+      {cat:"Clothing excess",total:534,col:"#A78BFA"},
+      {cat:"Homelab",total:491,col:"#00D4AA"},
+      {cat:"Entertainment",total:295,col:"#5B9CF6"},
+      {cat:"Travel excess",total:114,col:"#5DCAA5"}
+    ];
+    var maxW=WASTE[0].total;
+    document.getElementById("cat-bars").innerHTML=WASTE.map(function(w){
+      var pct=(w.total/maxW*100).toFixed(1);
+      return "<div class=\"cat-bar-row\"><span class=\"cat-bar-lbl\">"+w.cat+"</span><div class=\"cat-bar-track\"><div class=\"cat-bar-fill\" style=\"background:"+w.col+";width:0%\" data-w=\""+pct+"\"></div></div><span class=\"cat-bar-amt\">\u20ac"+w.total+"</span></div>";
+    }).join("");
+    requestAnimationFrame(function(){requestAnimationFrame(function(){document.querySelectorAll(".cat-bar-fill").forEach(function(el){el.style.width=el.dataset.w+"%";});});});
+  }
+
+  if(id===5){
+    var N=85;
+    var start=-11884;
+    var sqData=[],budData=[],pgData=[];
+    for(var m=0;m<N;m++){
+      sqData.push(Math.min(0,start+47*m));
+      budData.push(Math.min(0,start+200*m));
+      if(m<=12){pgData.push(Math.min(0,start+150*m));}
+      else{pgData.push(Math.min(0,(start+150*12)+1000*(m-12)));}
+    }
+    var lbls=[];
+    for(var i=0;i<N;i++){
+      if(i%12===0){
+        var yr=2026+Math.floor(i/12);
+        lbls.push("Jun "+yr);
+      } else {lbls.push("");}
+    }
+    ci["sv"]=new Chart(document.getElementById("c-sv"),{
+      type:"line",
+      data:{
+        labels:lbls,
+        datasets:[
+          {label:"Status quo",data:sqData,borderColor:"rgba(237,237,240,0.3)",backgroundColor:"transparent",borderWidth:1.5,pointRadius:0,tension:0.2},
+          {label:"Budget mode",data:budData,borderColor:"#F5B55F",backgroundColor:"rgba(245,181,95,0.05)",fill:true,borderWidth:2,pointRadius:0,tension:0.2},
+          {label:"Post-grad hustle",data:pgData,borderColor:"#34C77B",backgroundColor:"rgba(52,199,123,0.05)",fill:true,borderWidth:2.5,pointRadius:0,tension:0.2}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false,callbacks:{label:function(ctx){return ctx.dataset.label+": "+fkSigned(ctx.raw);}}}},
+        scales:{
+          x:{ticks:{font:{size:10,family:"DM Mono"},color:tc},grid:{color:gc}},
+          y:{ticks:{callback:function(v){return(v<0?"-":"")+"\u20ac"+(Math.abs(v)/1000).toFixed(0)+"k";},font:{size:10,family:"DM Mono"},color:tc},grid:{color:gc}}
+        }
+      }
+    });
+  }
+}
+
+done[0]=1; bld(0);
+</script>
+</body>
+</html>
