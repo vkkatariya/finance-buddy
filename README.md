@@ -1,5 +1,7 @@
 # Finance Buddy
 
+![CI](https://github.com/vkkatariya/finance-buddy/actions/workflows/ci.yml/badge.svg)
+
 Personal finance tracker and dashboard — part of the `vishalkatariya.dev/me` personal section.
 
 Built from 993 real transactions (Oct 2022 – May 2026) exported from the Buddy app.
