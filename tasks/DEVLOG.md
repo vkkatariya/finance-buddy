@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-11-02 · Claude Code (local) · fix(ci): make the workflow valid
+
+**Mode:** Builder
+
+**Did:** replaced the three job-level `if: ... hashFiles(...)` conditions in `.github/workflows/ci.yml` with a `detect` job whose outputs gate `frontend`, `backend` and `schema`. GitHub rejected the old file (hashFiles is not allowed in a job-level `if`), so no CI run had ever started on this repo. Job steps are unchanged.
+
+**Config change:** file `.github/workflows/ci.yml`; old: `if: github.event_name == 'pull_request' || hashFiles('<dir>/package.json') != ''`; new: `needs: detect` and `if: needs.detect.outputs.<dir> == 'true'`; rollback: `git revert b5f7464`.
+
+**Decided:** the old condition forced all three jobs on every pull request. This repo has no `web/` or `api/` yet (only `prototypes/`), so that would fail every PR. The jobs now run on both push and PR once the matching `package.json` exists, and are skipped before that.
+
+**State:** branch `agent/claude-code-config-ci-fix-hashfiles`, PR open against `main`, not merged. Not tested: the jobs themselves (`pnpm` steps) have never run, so they may need fixes when the scaffold lands (for example `cache: pnpm` needs pnpm installed first).
+
 ## 2026-06-06 · Claude (claude.ai) · Finance Buddy prototype complete — 17 milestones across full dashboard build
 
 **Mode:** Builder + Execution

@@ -7,10 +7,25 @@ on:
     branches: [main]
 
 jobs:
+  detect:
+    name: Detect web/ and api/ scaffolds
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.files.outputs.web }}
+      api: ${{ steps.files.outputs.api }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: files
+        run: |
+          for d in web api; do
+            if [ -f "$d/package.json" ]; then echo "$d=true" >> "$GITHUB_OUTPUT"; else echo "$d=false" >> "$GITHUB_OUTPUT"; fi
+          done
+
   frontend:
     name: Frontend — Typecheck · Lint · Build
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' || hashFiles('web/package.json') != '' }}
+    needs: detect
+    if: needs.detect.outputs.web == 'true'
     defaults:
       run:
         working-directory: ./web
@@ -29,7 +44,8 @@ jobs:
   backend:
     name: Backend — Typecheck · Build
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' || hashFiles('api/package.json') != '' }}
+    needs: detect
+    if: needs.detect.outputs.api == 'true'
     defaults:
       run:
         working-directory: ./api
@@ -47,7 +63,8 @@ jobs:
   schema:
     name: Drizzle — Generate + Push (dry-run)
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' || hashFiles('api/package.json') != '' }}
+    needs: detect
+    if: needs.detect.outputs.api == 'true'
     defaults:
       run:
         working-directory: ./api
